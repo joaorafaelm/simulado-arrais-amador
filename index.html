@@ -293,15 +293,56 @@
             );
         }
 
+        const RETRY_TARGET = 5;
+        const RETRY_PROGRESS_KEY = 'retryProgress';
+
+        function getRetryProgress() {
+            try {
+                return JSON.parse(localStorage.getItem(RETRY_PROGRESS_KEY)) || {};
+            } catch (e) {
+                return {};
+            }
+        }
+
+        function getStreak(category, question) {
+            const progress = getRetryProgress();
+            return (progress[category] && progress[category][question]) || 0;
+        }
+
+        function setStreak(category, question, value) {
+            const progress = getRetryProgress();
+            if (!progress[category]) progress[category] = {};
+            if (value > 0) {
+                progress[category][question] = value;
+            } else {
+                delete progress[category][question];
+                if (Object.keys(progress[category]).length === 0) delete progress[category];
+            }
+            localStorage.setItem(RETRY_PROGRESS_KEY, JSON.stringify(progress));
+        }
+
+        function showResultMessage(html) {
+            const resultContainer = document.getElementById('result-container');
+            resultContainer.innerHTML = `<p>${html}</p>`;
+            setTimeout(() => { resultContainer.innerHTML = ''; }, 3000);
+        }
+
         function getWrongQuestions(category) {
             const history = JSON.parse(localStorage.getItem('answerHistory')) || [];
-            const seen = new Set();
-            const questions = [];
+            const entriesByQuestion = {};
             history.forEach(entry => {
-                if (entry.category !== category || !isEntryWrong(entry)) return;
-                if (seen.has(entry.question)) return;
-                seen.add(entry.question);
-                questions.push({ question: entry.question, options: entry.options });
+                if (entry.category !== category) return;
+                (entriesByQuestion[entry.question] = entriesByQuestion[entry.question] || []).push(entry);
+            });
+            const progress = getRetryProgress();
+            const questions = [];
+            Object.keys(entriesByQuestion).forEach(question => {
+                const entries = entriesByQuestion[question];
+                const hasWrong = entries.some(isEntryWrong);
+                const tracked = !!(progress[category] && question in progress[category]);
+                const streak = tracked ? progress[category][question] : 0;
+                if (!hasWrong && (!tracked || streak >= RETRY_TARGET)) return;
+                questions.push({ question, options: entries[entries.length - 1].options });
             });
             return questions;
         }
@@ -311,9 +352,7 @@
             const wrong = getWrongQuestions(category);
             if (wrong.length === 0) {
                 retryMode = false;
-                const resultContainer = document.getElementById('result-container');
-                resultContainer.innerHTML = `<p>No wrong answers to retry in ${category}.</p>`;
-                setTimeout(() => { resultContainer.innerHTML = ''; }, 3000);
+                showResultMessage(`No wrong answers to retry in ${category}.`);
                 updateRetryButton();
                 return;
             }
@@ -371,12 +410,26 @@
                 optionElement.appendChild(message);
             });
 
+            const answeredWrong = selectedOptions.some(index => !currentQuestion.options[index].correct);
+
             if (retryMode) {
                 const history = JSON.parse(localStorage.getItem('answerHistory')) || [];
                 const remaining = history.filter(entry =>
                     !(entry.category === answerData.category && entry.question === answerData.question)
                 );
                 localStorage.setItem('answerHistory', JSON.stringify(remaining));
+
+                const streak = answeredWrong ? 0 : getStreak(answerData.category, answerData.question) + 1;
+                setStreak(answerData.category, answerData.question, streak);
+                if (answeredWrong) {
+                    showResultMessage('Wrong answer. Streak reset (0/' + RETRY_TARGET + ').');
+                } else {
+                    showResultMessage(streak >= RETRY_TARGET
+                        ? 'Question mastered (' + RETRY_TARGET + '/' + RETRY_TARGET + ')!'
+                        : 'Correct! ' + streak + '/' + RETRY_TARGET + ' to complete.');
+                }
+            } else if (answeredWrong) {
+                setStreak(answerData.category, answerData.question, 0);
             }
 
             saveAnswerToHistory(answerData);
@@ -460,6 +513,9 @@
             const currentCategory = document.getElementById('category').value;
             const remaining = history.filter(entry => entry.category !== currentCategory);
             localStorage.setItem('answerHistory', JSON.stringify(remaining));
+            const progress = getRetryProgress();
+            delete progress[currentCategory];
+            localStorage.setItem(RETRY_PROGRESS_KEY, JSON.stringify(progress));
             displayHistory();
             const historyContainer = document.getElementById('history-container');
             historyContainer.classList.add('hidden');
