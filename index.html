@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulado Arrais Amador</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f4f4f9;
+            color: #333;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .dark-mode {
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+
+        h1 {
+            margin-top: 20px;
+            font-size: 2em;
+        }
+
+        h3 {
+            margin-top: 0;
+        }
+
+        .select-container {
+            display: flex;
+            gap: 20px;
+            margin: 10px 0;
+        }
+
+        label, select, button {
+            font-size: 1em;
+        }
+
+        select, button {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        button:hover {
+            background-color: #e0e0e0;
+        }
+
+        .dark-mode button {
+            background-color: #333;
+            color: #fff;
+            border: 1px solid #555;
+        }
+
+        .dark-mode button:hover {
+            background-color: #444;
+        }
+
+        #question-container {
+            width: 90%;
+            max-width: 600px;
+            margin: 10px 20px 20px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+        }
+
+        .dark-mode #question-container {
+            background-color: #333;
+            color: #e0e0e0;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin: 10px 0;
+        }
+
+        .correct {
+            background-color: #d4edda;
+            border-left: 5px solid #28a745;
+            padding-left: 10px;
+            padding-top: 15px;
+            padding-bottom: 5px;
+        }
+
+        .incorrect {
+            background-color: #f8d7da;
+            border-left: 5px solid #dc3545;
+            padding-left: 10px;
+            padding-top: 15px;
+            padding-bottom: 5px;
+        }
+
+        .correct p, .incorrect p {
+            font-size: 0.9em;
+        }
+
+        .dark-mode .correct, .dark-mode .incorrect {
+            color: #333;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #history-container {
+            width: 90%;
+            max-width: 600px;
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+        }
+
+        .dark-mode #history-container {
+            background-color: #333;
+            color: #e0e0e0;
+        }
+
+        #history-container div {
+            margin-top: 40px;
+        }
+
+        #clear-history-button {
+            float: right;
+            margin: 5px;
+        }
+
+        #dark-mode-toggle {
+            background-color: #fff;
+            color: #333;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            cursor: pointer;
+        }
+        
+        .dark-mode #dark-mode-toggle {
+            background-color: #333;
+            color: #fff;
+            border: 1px solid #555;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .select-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            label, select, button {
+                font-size: 0.9em;
+            }
+
+            #question-container, #history-container {
+                padding: 15px;
+            }
+
+            #dark-mode-toggle {
+                margin-right: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Simulado Arrais Amador</h1>
+    <div class="select-container">
+        <div>
+            <label for="category">Category:</label>
+            <select id="category" onchange="savePreferences();">
+                <option value="Arrais amador - RIPEAM">Arrais amador - RIPEAM</option>
+                <option value="Arrais amador - Cartas Náuticas">Arrais amador - Cartas Náuticas</option>
+                <option value="Arrais amador - Combate a Incêndio">Arrais amador - Combate a Incêndio</option>
+                <option value="Arrais amador - Conhecimentos Gerais">Arrais amador - Conhecimentos Gerais</option>
+                <option value="Arrais amador - Primeiros Socorros">Arrais amador - Primeiros Socorros</option>
+                <option value="Arrais amador - RLESTA/NORMAM 03">Arrais amador - RLESTA/NORMAM 03</option>
+                <option value="Arrais amador - Sobrevivência e Segurança no Meio Marinho">Arrais amador - Sobrevivência e Segurança no Meio Marinho</option>
+                <option value="Arrais amador - Balizamento Náutico">Arrais amador - Balizamento Náutico</option>
+                <option value="Arrais amador - Homem ao Mar">Arrais amador - Homem ao Mar</option>
+                <option value="Arrais amador - Todos">Arrais amador - Todos</option>
+            </select>
+        </div>
+    </div>
+
+    <button id="dark-mode-toggle" onclick="toggleDarkMode()">🌙 Night Mode</button>
+
+    <div id="question-container" class="hidden"></div>
+    <div id="result-container"></div>
+    <button id="show-history-button" class="hidden" onclick="toggleHistory()">Show History</button>
+    <button id="retry-wrong-button" onclick="retryWrongAnswers()">Retry Wrong Answers</button>
+    <div id="history-container" class="hidden"></div>
+    <script>
+        let currentQuestion = null;
+        let retryMode = false;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPreferences();
+            displayHistory();
+            loadQuestion();
+            applyStoredTheme();
+        });
+
+        function savePreferences() {
+            const category = document.getElementById('category').value;
+            localStorage.setItem('selectedCategory', category);
+            loadQuestion();
+            displayHistory();
+            updateRetryButton();
+        }
+
+        function loadPreferences() {
+            const savedCategory = localStorage.getItem('selectedCategory');
+            if (savedCategory) {
+                document.getElementById('category').value = savedCategory;
+            }
+        }
+
+        function applyStoredTheme() {
+            const darkMode = localStorage.getItem('darkMode') === 'true';
+            if (darkMode) {
+                document.body.classList.add('dark-mode');
+                document.getElementById('dark-mode-toggle').textContent = '☀️ Day Mode';
+            } else {
+                document.body.classList.remove('dark-mode');
+                document.getElementById('dark-mode-toggle').textContent = '🌙 Night Mode';
+            }
+        }
+
+        function toggleDarkMode() {
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            if (isDarkMode) {
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('darkMode', 'false');
+                document.getElementById('dark-mode-toggle').textContent = '🌙 Night Mode';
+            } else {
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('darkMode', 'true');
+                document.getElementById('dark-mode-toggle').textContent = '☀️ Day Mode';
+            }
+        }
+
+        async function loadQuestion() {
+            const category = document.getElementById('category').value;
+
+            try {
+                const response = await fetch('questions.json');
+                const data = await response.json();
+                const questions = data[category]['pt'];
+                const randomQuestion = questions[Math.floor(Math.random() * questions.length)];
+
+                currentQuestion = randomQuestion;
+                displayQuestion(randomQuestion);
+            } catch (error) {
+                console.error('Error loading questions:', error);
+            }
+        }
+
+        function displayQuestion(question) {
+            const container = document.getElementById('question-container');
+            container.classList.remove('hidden');
+            container.innerHTML = `
+                <h3>${question.question}</h3>
+                <ul>
+                    ${question.options.map((option, index) => `
+                        <li>
+                            <input type="checkbox" name="option" id="option${index}" value="${index}">
+                            <label for="option${index}">${option.option}</label>
+                        </li>
+                    `).join('')}
+                </ul>
+                <button id="submit-button" onclick="checkAnswer()">Submit Answer</button>
+            `;
+        }
+
+        function isEntryWrong(entry) {
+            return entry.options.some((option, i) =>
+                !option.correct && entry.selectedOptions.includes(i)
+            );
+        }
+
+        function getWrongQuestions(category) {
+            const history = JSON.parse(localStorage.getItem('answerHistory')) || [];
+            const seen = new Set();
+            const questions = [];
+            history.forEach(entry => {
+                if (entry.category !== category || !isEntryWrong(entry)) return;
+                if (seen.has(entry.question)) return;
+                seen.add(entry.question);
+                questions.push({ question: entry.question, options: entry.options });
+            });
+            return questions;
+        }
+
+        function retryWrongAnswers() {
+            const category = document.getElementById('category').value;
+            const wrong = getWrongQuestions(category);
+            if (wrong.length === 0) {
+                retryMode = false;
+                const resultContainer = document.getElementById('result-container');
+                resultContainer.innerHTML = `<p>No wrong answers to retry in ${category}.</p>`;
+                setTimeout(() => { resultContainer.innerHTML = ''; }, 3000);
+                updateRetryButton();
+                return;
+            }
+            retryMode = true;
+            updateRetryButton();
+            loadRetryQuestion();
+        }
+
+        function loadRetryQuestion() {
+            const category = document.getElementById('category').value;
+            const wrong = getWrongQuestions(category);
+            if (wrong.length === 0) {
+                retryMode = false;
+                updateRetryButton();
+                loadQuestion();
+                return;
+            }
+            const pick = wrong[Math.floor(Math.random() * wrong.length)];
+            currentQuestion = {
+                question: pick.question,
+                options: pick.options.map(o => ({ option: o.option, correct: o.correct, message: o.message }))
+            };
+            displayQuestion(currentQuestion);
+        }
+
+        function updateRetryButton() {
+            const button = document.getElementById('retry-wrong-button');
+            const category = document.getElementById('category').value;
+            const count = getWrongQuestions(category).length;
+            button.textContent = count > 0 ? `Retry Wrong Answers (${count})` : 'Retry Wrong Answers';
+        }
+
+        function checkAnswer() {
+            const selectedOptions = Array.from(document.querySelectorAll('input[name="option"]:checked')).map(input => parseInt(input.value));
+            const resultContainer = document.getElementById('result-container');
+            resultContainer.innerHTML = '';
+
+            const answerData = {
+                question: currentQuestion.question,
+                selectedOptions: selectedOptions,
+                options: currentQuestion.options,
+                category: document.getElementById('category').value
+            };
+
+            currentQuestion.options.forEach((option, index) => {
+                const optionElement = document.getElementById(`option${index}`).parentElement;
+                if (option.correct) {
+                    optionElement.classList.add('correct');
+                } else if (selectedOptions.includes(index)) {
+                    optionElement.classList.add('incorrect');
+                }
+
+                const message = document.createElement('p');
+                message.textContent = option.message;
+                optionElement.appendChild(message);
+            });
+
+            if (retryMode) {
+                const history = JSON.parse(localStorage.getItem('answerHistory')) || [];
+                const remaining = history.filter(entry =>
+                    !(entry.category === answerData.category && entry.question === answerData.question)
+                );
+                localStorage.setItem('answerHistory', JSON.stringify(remaining));
+            }
+
+            saveAnswerToHistory(answerData);
+
+            const submitButton = document.getElementById('submit-button');
+            submitButton.textContent = 'Next Question';
+            submitButton.onclick = retryMode ? loadRetryQuestion : loadQuestion;
+        }
+
+        function saveAnswerToHistory(answerData) {
+            let history = JSON.parse(localStorage.getItem('answerHistory')) || [];
+            history.push(answerData);
+            localStorage.setItem('answerHistory', JSON.stringify(history));
+            displayHistory();
+        }
+
+        function displayHistory() {
+            const historyContainer = document.getElementById('history-container');
+            const history = JSON.parse(localStorage.getItem('answerHistory')) || [];
+            const currentCategory = document.getElementById('category').value;
+            const categoryHistory = history.filter(entry => entry.category === currentCategory);
+
+            const showHistoryButton = document.getElementById('show-history-button');
+
+            if (categoryHistory.length > 0) showHistoryButton.classList.remove('hidden');
+            else showHistoryButton.classList.add('hidden');
+
+            let correctCount = 0;
+            let incorrectCount = 0;
+
+            categoryHistory.forEach(entry => {
+                entry.options.forEach((option, i) => {
+                    if (option.correct && entry.selectedOptions.includes(i)) {
+                        correctCount++;
+                    } else if (!option.correct && entry.selectedOptions.includes(i)) {
+                        incorrectCount++;
+                    }
+                });
+            });
+
+            const totalAnswers = correctCount + incorrectCount;
+            const correctRatio = totalAnswers > 0 ? (correctCount / totalAnswers * 100).toFixed(2) : 0;
+            const incorrectRatio = totalAnswers > 0 ? (incorrectCount / totalAnswers * 100).toFixed(2) : 0;
+
+            historyContainer.innerHTML = `
+                <button id="clear-history-button" onclick="clearHistory()">Clear History</button>
+                <h3>Answer History (${currentCategory})</h3>
+                <p>Correct Answers: ${correctCount} (${correctRatio}%)</p>
+                <p>Incorrect Answers: ${incorrectCount} (${incorrectRatio}%)</p>
+            `;
+
+            categoryHistory.forEach((entry, index) => {
+                const entryElement = document.createElement('div');
+                entryElement.innerHTML = `
+                    <h3>Question ${index + 1}: ${entry.question}</h3>
+                    <ul>
+                        ${entry.options.map((option, i) => `
+                            <li class="${option.correct ? 'correct' : (entry.selectedOptions.includes(i) ? 'incorrect' : '')}">
+                                ${option.option} - ${option.message}
+                            </li>
+                        `).join('')}
+                    </ul>
+                `;
+                historyContainer.appendChild(entryElement);
+            });
+
+            updateRetryButton();
+        }
+
+        function toggleHistory() {
+            const historyContainer = document.getElementById('history-container');
+            if (historyContainer.classList.contains('hidden')) {
+                historyContainer.classList.remove('hidden');
+            } else {
+                historyContainer.classList.add('hidden');
+            }
+        }
+
+        function clearHistory() {
+            const history = JSON.parse(localStorage.getItem('answerHistory')) || [];
+            const currentCategory = document.getElementById('category').value;
+            const remaining = history.filter(entry => entry.category !== currentCategory);
+            localStorage.setItem('answerHistory', JSON.stringify(remaining));
+            displayHistory();
+            const historyContainer = document.getElementById('history-container');
+            historyContainer.classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
+    
