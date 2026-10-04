@@ -1,5 +1,5 @@
 {
-    "Arrais amador - RIPEAM": {
+    "Todos": {
         "pt": [
             {
                 "question": "Qual a finalidade do RIPEAM?",
@@ -550,11 +550,7 @@
                         "message": ""
                     }
                 ]
-            }
-        ]
-    },
-    "Arrais amador - Cartas Náuticas": {
-        "pt": [
+            },
             {
                 "question": "As coordenadas de um ponto, na carta náutica, são:",
                 "options": [
@@ -729,11 +725,7 @@
                         "message": ""
                     }
                 ]
-            }
-        ]
-    },
-    "Arrais amador - Combate a Incêndio": {
-        "pt": [
+            },
             {
                 "question": "Só haverá fogo quando:",
                 "options": [
@@ -1558,11 +1550,7 @@
                         "message": ""
                     }
                 ]
-            }
-        ]
-    },
-    "Arrais amador - Conhecimentos Gerais": {
-        "pt": [
+            },
             {
                 "question": "Com relação ao leme, podemos dizer que é uma:",
                 "options": [
@@ -2437,11 +2425,7 @@
                         "message": ""
                     }
                 ]
-            }
-        ]
-    },
-    "Arrais amador - Primeiros Socorros": {
-        "pt": [
+            },
             {
                 "question": "Quando, por ocasião de um acidente a bordo, o acidentado não estiver respirando, devo proceder:",
                 "options": [
@@ -3341,11 +3325,7 @@
                         "message": ""
                     }
                 ]
-            }
-        ]
-    },
-    "Arrais amador - RLESTA/NORMAM 03": {
-        "pt": [
+            },
             {
                 "question": "O R-LESTA é um regulamento que tem como finalidade principal:",
                 "options": [
@@ -4345,11 +4325,7 @@
                         "message": ""
                     }
                 ]
-            }
-        ]
-    },
-    "Arrais amador - Sobrevivência e Segurança no Meio Marinho": {
-        "pt": [
+            },
             {
                 "question": "Para que serve o colete salva-vidas?",
                 "options": [
@@ -5099,11 +5075,7 @@
                         "message": ""
                     }
                 ]
-            }
-        ]
-    },
-    "Arrais amador - Balizamento Náutico": {
-        "pt": [
+            },
             {
                 "question": "São situações normalmente indicadas por balizamento, exceto:",
                 "options": [
@@ -6178,11 +6150,7 @@
                         "message": ""
                     }
                 ]
-            }
-        ]
-    },
-    "Arrais amador - Homem ao Mar": {
-        "pt": [
+            },
             {
                 "question": "Logo após o “Homem ao Mar”, uma ação muito útil é:",
                 "options": [
@@ -6435,7 +6403,7 @@
             }
         ]
     },
-    "Arrais amador - Todos": {
+    "RIPEAM": {
         "pt": [
             {
                 "question": "Qual a finalidade do RIPEAM?",
@@ -6986,7 +6954,11 @@
                         "message": ""
                     }
                 ]
-            },
+            }
+        ]
+    },
+    "Cartas Náuticas": {
+        "pt": [
             {
                 "question": "As coordenadas de um ponto, na carta náutica, são:",
                 "options": [
@@ -7161,7 +7133,11 @@
                         "message": ""
                     }
                 ]
-            },
+            }
+        ]
+    },
+    "Combate a Incêndio": {
+        "pt": [
             {
                 "question": "Só haverá fogo quando:",
                 "options": [
@@ -7986,7 +7962,11 @@
                         "message": ""
                     }
                 ]
-            },
+            }
+        ]
+    },
+    "Conhecimentos Gerais": {
+        "pt": [
             {
                 "question": "Com relação ao leme, podemos dizer que é uma:",
                 "options": [
@@ -8861,7 +8841,11 @@
                         "message": ""
                     }
                 ]
-            },
+            }
+        ]
+    },
+    "Primeiros Socorros": {
+        "pt": [
             {
                 "question": "Quando, por ocasião de um acidente a bordo, o acidentado não estiver respirando, devo proceder:",
                 "options": [
@@ -9761,7 +9745,11 @@
                         "message": ""
                     }
                 ]
-            },
+            }
+        ]
+    },
+    "RLESTA/NORMAM 03": {
+        "pt": [
             {
                 "question": "O R-LESTA é um regulamento que tem como finalidade principal:",
                 "options": [
@@ -10761,7 +10749,11 @@
                         "message": ""
                     }
                 ]
-            },
+            }
+        ]
+    },
+    "Sobrevivência e Segurança no Meio Marinho": {
+        "pt": [
             {
                 "question": "Para que serve o colete salva-vidas?",
                 "options": [
@@ -11511,7 +11503,11 @@
                         "message": ""
                     }
                 ]
-            },
+            }
+        ]
+    },
+    "Balizamento Náutico": {
+        "pt": [
             {
                 "question": "São situações normalmente indicadas por balizamento, exceto:",
                 "options": [
@@ -12586,7 +12582,11 @@
                         "message": ""
                     }
                 ]
-            },
+            }
+        ]
+    },
+    "Homem ao Mar": {
+        "pt": [
             {
                 "question": "Logo após o “Homem ao Mar”, uma ação muito útil é:",
                 "options": [
