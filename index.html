@@ -202,7 +202,7 @@
     <div id="question-container" class="hidden"></div>
     <div id="result-container"></div>
     <button id="show-history-button" class="hidden" onclick="toggleHistory()">Show History</button>
-    <button id="retry-wrong-button" onclick="retryWrongAnswers()">Retry Wrong Answers</button>
+    <button id="retry-wrong-button" class="hidden" onclick="retryWrongAnswers()">Retry Wrong Answers</button>
     <div id="history-container" class="hidden"></div>
     <script>
         let currentQuestion = null;
@@ -382,7 +382,12 @@
             const button = document.getElementById('retry-wrong-button');
             const category = document.getElementById('category').value;
             const count = getWrongQuestions(category).length;
-            button.textContent = count > 0 ? `Retry Wrong Answers (${count})` : 'Retry Wrong Answers';
+            if (count > 0) {
+                button.classList.remove('hidden');
+                button.textContent = `Retry Wrong Answers (${count})`;
+            } else {
+                button.classList.add('hidden');
+            }
         }
 
         function checkAnswer() {
