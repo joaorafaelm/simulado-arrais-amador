@@ -207,6 +207,8 @@
     <script>
         let currentQuestion = null;
         let retryMode = false;
+        let isFallbackQuestion = false;
+        let retrySessionAnswered = new Set();
 
         document.addEventListener('DOMContentLoaded', () => {
             loadPreferences();
@@ -256,6 +258,7 @@
 
         async function loadQuestion() {
             const category = document.getElementById('category').value;
+            isFallbackQuestion = false;
 
             try {
                 const response = await fetch('questions.json');
@@ -349,6 +352,7 @@
 
         function retryWrongAnswers() {
             const category = document.getElementById('category').value;
+            retrySessionAnswered = new Set();
             const wrong = getWrongQuestions(category);
             if (wrong.length === 0) {
                 retryMode = false;
@@ -370,12 +374,39 @@
                 loadQuestion();
                 return;
             }
-            const pick = wrong[Math.floor(Math.random() * wrong.length)];
+            const remaining = wrong.filter(q => !retrySessionAnswered.has(q.question));
+            if (remaining.length === 0) {
+                // already replied to every pending question this session: draw any
+                // other question from the selected category instead of repeating it
+                loadFallbackQuestion();
+                return;
+            }
+            const pick = remaining[Math.floor(Math.random() * remaining.length)];
+            retrySessionAnswered.add(pick.question);
+            isFallbackQuestion = false;
             currentQuestion = {
                 question: pick.question,
                 options: pick.options.map(o => ({ option: o.option, correct: o.correct, message: o.message }))
             };
             displayQuestion(currentQuestion);
+        }
+
+        async function loadFallbackQuestion() {
+            const category = document.getElementById('category').value;
+            try {
+                const response = await fetch('questions.json');
+                const data = await response.json();
+                const all = data[category]['pt'];
+                const exclude = new Set(getWrongQuestions(category).map(q => q.question));
+                let candidates = all.filter(q => !exclude.has(q.question));
+                if (candidates.length === 0) candidates = all;
+                const pick = candidates[Math.floor(Math.random() * candidates.length)];
+                isFallbackQuestion = true;
+                currentQuestion = pick;
+                displayQuestion(pick);
+            } catch (error) {
+                console.error('Error loading fallback question:', error);
+            }
         }
 
         function updateRetryButton() {
@@ -417,24 +448,26 @@
 
             const answeredWrong = selectedOptions.some(index => !currentQuestion.options[index].correct);
 
-            if (retryMode) {
+            if (answeredWrong) {
+                setStreak(answerData.category, answerData.question, 0);
+            }
+
+            if (retryMode && !isFallbackQuestion) {
                 const history = JSON.parse(localStorage.getItem('answerHistory')) || [];
                 const remaining = history.filter(entry =>
                     !(entry.category === answerData.category && entry.question === answerData.question)
                 );
                 localStorage.setItem('answerHistory', JSON.stringify(remaining));
 
-                const streak = answeredWrong ? 0 : getStreak(answerData.category, answerData.question) + 1;
-                setStreak(answerData.category, answerData.question, streak);
                 if (answeredWrong) {
                     showResultMessage('Wrong answer. Streak reset (0/' + RETRY_TARGET + ').');
                 } else {
+                    const streak = getStreak(answerData.category, answerData.question) + 1;
+                    setStreak(answerData.category, answerData.question, streak);
                     showResultMessage(streak >= RETRY_TARGET
                         ? 'Question mastered (' + RETRY_TARGET + '/' + RETRY_TARGET + ')!'
                         : 'Correct! ' + streak + '/' + RETRY_TARGET + ' to complete.');
                 }
-            } else if (answeredWrong) {
-                setStreak(answerData.category, answerData.question, 0);
             }
 
             saveAnswerToHistory(answerData);
